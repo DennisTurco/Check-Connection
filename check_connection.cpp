@@ -37,6 +37,9 @@ void diagnostic_tool (const char *command_disabled, const char *command_enabled)
     system(command_disabled);
     sleep(5);
     system(command_enabled);
+    
+    delete []command_enabled;
+    delete []command_disabled;
 }
 
 void check_connection (const char *network_name){
@@ -45,20 +48,22 @@ void check_connection (const char *network_name){
         int count = 1;
         std::cout.flush();
 
+        char command[] = "netsh interface set interface ";
+
         // build command "command_disabled"
-        char *command_disabled = new char[40 + std::string(network_name).length()];
-        command_disabled[0] = '\n';
-        strcat(command_disabled, "netsh interface set interface ");
+        char command_disabled[std::string(command).length() + std::string(network_name).length()] = "\0";
+        strcat(command_disabled, command);
         strcat(command_disabled, network_name);
         strcat(command_disabled, " disabled");
 
         // build command "command_enabled"
-        char *command_enabled = new char[40 + std::string(network_name).length()];
-        command_enabled[0] = '\n';
-        strcat(command_enabled, "netsh interface set interface ");
+        char command_enabled[std::string(command).length() + std::string(network_name).length()] = "\0";
+        strcat(command_enabled, command);
         strcat(command_enabled, network_name);
         strcat(command_enabled, " enabled");
 
+        // print for debug
+        //std::cout<<command_enabled<<std::endl<<command_disabled<<std::endl;
 
         system("netsh interface show interface");
         // run the network card troubleshooting diagnostics
@@ -73,6 +78,7 @@ void check_connection (const char *network_name){
     }
     
     std::cout<<"\nConnected to the internet\n\n";
+    
 }
 
 
@@ -84,7 +90,6 @@ int main (void) {
         system("pause");
         return EXIT_FAILURE;
     };
-
     
     // get the network name from file "data.txt"
     std::ifstream file;
@@ -119,6 +124,9 @@ int main (void) {
     // check connection
     check_connection(network_name);
     
+    
+    delete []network_name;
+
     system("pause");
 
     return EXIT_SUCCESS;
